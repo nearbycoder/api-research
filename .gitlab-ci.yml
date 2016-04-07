@@ -1,3 +1,3 @@
-job1:
+pages:
         script: "npm run-script generate"
 
