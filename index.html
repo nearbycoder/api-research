@@ -1,0 +1,1457 @@
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>API Reference</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.1.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    <script src="js/lib/energize.js"></script>
+<script src="js/lib/imagesloaded.min.js"></script>
+<script src="js/lib/jquery_ui.js"></script>
+<script src="js/lib/jquery.highlight.js"></script>
+<script src="js/lib/jquery.tocify.js"></script>
+<script src="js/lib/lunr.js"></script>
+    <script src="js/script.js"></script>
+
+    
+      <script>
+        $(function() {
+            setupLanguages(["json"]);
+        });
+      </script>
+    
+  </head>
+
+  <body class="">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar.png">
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <img src="images/logo.png">
+      
+        <div class="lang-selector">
+          
+              <a href="#" data-language-name="json">json</a>
+          
+        </div>
+      
+      
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      
+      <div id="toc">
+      </div>
+      
+        <ul class="toc-footer">
+          
+              <li></li>
+          
+        </ul>
+      
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>The following are API integration suggestions for Weekly Roundup. This is all the information that you could get by going directly to the integration API documentations, except consolidated down to endpoints that could be useful to Weekly Roundup.</p>
+
+        
+          
+              <h1 id="Asana-API"><a href="#Asana-API" class="headerlink" title="Asana API"></a>Asana API</h1><h2 id="Authentication"><a href="#Authentication" class="headerlink" title="Authentication"></a>Authentication</h2><p>Authenticated through basic OAuth. This will work much like our Harvest Implemenation. We will need to check against the token for expiry first before making our api calls.</p>
+<h3 id="User-Authorization-Endpoint"><a href="#User-Authorization-Endpoint" class="headerlink" title="User Authorization Endpoint"></a>User Authorization Endpoint</h3><h4 id="Redirect-users-to-request-Asana-access"><a href="#Redirect-users-to-request-Asana-access" class="headerlink" title="Redirect users to request Asana access"></a>Redirect users to request Asana access</h4><p><code>GET https://app.asana.com/-/oauth_authorize</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>client_id</td>
+<td>required The Client ID uniquely identifies the application making the request.</td>
+</tr>
+<tr>
+<td>redirect_uri</td>
+<td>required The URI to redirect to on success or error. This must match the Redirect URL specified in the application settings.</td>
+</tr>
+<tr>
+<td>response_type</td>
+<td>required Must be one of either code (if using the Authorization Code Grant flow) or token (if using the Implicit Grant flow). Other flows are currently not supported.</td>
+</tr>
+<tr>
+<td>state</td>
+<td>required Encodes state of the app, which will be returned verbatim in the response and can be used to match the response up to a given request.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="Response"><a href="#Response" class="headerlink" title="Response"></a>Response</h4><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>code</td>
+<td>If response_type=code in the request, this is the code your app can exchange for a token</td>
+</tr>
+<tr>
+<td>token</td>
+<td>If response_type=token in the request, this is the token your app can use to make requests of the API</td>
+</tr>
+<tr>
+<td>state</td>
+<td>The state parameter that was sent with the authorizing request</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Token-Exchange-Endpoint"><a href="#Token-Exchange-Endpoint" class="headerlink" title="Token Exchange Endpoint"></a>Token Exchange Endpoint</h3><h4 id="Request"><a href="#Request" class="headerlink" title="Request"></a>Request</h4><p><code>POST https://app.asana.com/-/oauth_token</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>grant_type</td>
+<td>required One of authorization_code, refresh_token or password. See below for more details.</td>
+</tr>
+<tr>
+<td>client_id</td>
+<td>required The Client ID uniquely identifies the application making the request.</td>
+</tr>
+<tr>
+<td>client_secret</td>
+<td>required The Client Secret belonging to the app, found in the details pane of the developer console.</td>
+</tr>
+<tr>
+<td>redirect_uri</td>
+<td>required Must match the redirect_uri specified in the original request.</td>
+</tr>
+<tr>
+<td>code</td>
+<td>sometimes required If grant_type=authorization_code this is the code you are exchanging for an authorization token.</td>
+</tr>
+<tr>
+<td>refresh_token</td>
+<td>sometimes required If grant_type=refresh_token this is the refresh token you are using to be granted a new access token.</td>
+</tr>
+<tr>
+<td>username</td>
+<td>sometimes required If grant_type=password this is the username you are exchanging for an authorization token.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="Response-1"><a href="#Response-1" class="headerlink" title="Response"></a>Response</h4><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>access_token</td>
+<td>The token to use in future requests against the API</td>
+</tr>
+<tr>
+<td>expires_in</td>
+<td>The number of seconds the token is valid, typically 3600 (one hour)</td>
+</tr>
+<tr>
+<td>token_type</td>
+<td>The type of token, in our case, bearer</td>
+</tr>
+<tr>
+<td>refresh_token</td>
+<td>If exchanging a code, a long-lived token that can be used to get new access tokens when old ones expire.</td>
+</tr>
+<tr>
+<td>data</td>
+<td>A JSON object encoding a few key fields about the logged-in user, currently id, name, and email.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Basic-API"><a href="#Basic-API" class="headerlink" title="Basic API"></a>Basic API</h2><h3 id="Get-Workspaces"><a href="#Get-Workspaces" class="headerlink" title="Get Workspaces"></a>Get Workspaces</h3><pre><code class="json highlight">{
+  <span class="attr">"data"</span>: [
+    {
+      <span class="attr">"id"</span>: <span class="number">82341452549678</span>,
+      <span class="attr">"name"</span>: <span class="string">"weekend-devs"</span>,
+      <span class="attr">"is_organization"</span>: <span class="literal">false</span>
+    },
+    {
+      <span class="attr">"id"</span>: <span class="number">498346170860</span>,
+      <span class="attr">"name"</span>: <span class="string">"Personal Projects"</span>,
+      <span class="attr">"is_organization"</span>: <span class="literal">true</span>
+    }
+  ],
+  <span class="attr">"next_page"</span>: <span class="literal">null</span>
+}
+</code></pre>
+<h4 id="Request-1"><a href="#Request-1" class="headerlink" title="Request"></a>Request</h4><p><code>GET /workspaces</code></p>
+<p><code>GET /workspaces?opt_fields=is_organization,id,name&amp;limit=100</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>Read-only. Globally unique ID of the workspace.</td>
+</tr>
+<tr>
+<td>name</td>
+<td>The name of the workspace.</td>
+</tr>
+<tr>
+<td>is_organization</td>
+<td>Whether the workspace is an organization.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Get-Projects-for-Workspaces"><a href="#Get-Projects-for-Workspaces" class="headerlink" title="Get Projects for Workspaces"></a>Get Projects for Workspaces</h3><pre><code class="json highlight">{
+  <span class="attr">"data"</span>: [
+    {
+      <span class="attr">"id"</span>: <span class="number">82341455320268</span>,
+      <span class="attr">"owner"</span>: {
+        <span class="attr">"id"</span>: <span class="number">82341441964652</span>
+      },
+      <span class="attr">"due_date"</span>: <span class="literal">null</span>,
+      <span class="attr">"current_status"</span>: <span class="literal">null</span>,
+      <span class="attr">"public"</span>: <span class="literal">true</span>,
+      <span class="attr">"name"</span>: <span class="string">"DonutRun Frontend"</span>,
+      <span class="attr">"notes"</span>: <span class="string">""</span>,
+      <span class="attr">"archived"</span>: <span class="literal">false</span>,
+      <span class="attr">"workspace"</span>: {
+        <span class="attr">"id"</span>: <span class="number">82341452549678</span>
+      },
+      <span class="attr">"color"</span>: <span class="literal">null</span>
+    },
+    {
+      <span class="attr">"id"</span>: <span class="number">82341455320269</span>,
+      <span class="attr">"owner"</span>: {
+        <span class="attr">"id"</span>: <span class="number">82341441964652</span>
+      },
+      <span class="attr">"due_date"</span>: <span class="literal">null</span>,
+      <span class="attr">"current_status"</span>: <span class="literal">null</span>,
+      <span class="attr">"public"</span>: <span class="literal">true</span>,
+      <span class="attr">"name"</span>: <span class="string">"DonutRun Backend"</span>,
+      <span class="attr">"notes"</span>: <span class="string">""</span>,
+      <span class="attr">"archived"</span>: <span class="literal">false</span>,
+      <span class="attr">"workspace"</span>: {
+        <span class="attr">"id"</span>: <span class="number">82341452549678</span>
+      },
+      <span class="attr">"color"</span>: <span class="literal">null</span>
+    }
+  ],
+  <span class="attr">"next_page"</span>: <span class="literal">null</span>
+}
+</code></pre>
+<h4 id="Request-2"><a href="#Request-2" class="headerlink" title="Request"></a>Request</h4><p><code>GET /workspaces/:workspace/projects</code></p>
+<p><code>GET /workspaces/82341452549678/projects?opt_fields=name,id,owner,current_status,due_date,archived,public,color,notes,workspace,team&amp;limit=100</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>Name of the project. This is generally a short sentence fragment that fits on a line in the UI for maximum readability. However, it can be longer.</td>
+</tr>
+<tr>
+<td>id</td>
+<td>Read-only. Globally unique ID of the project.</td>
+</tr>
+<tr>
+<td>owner</td>
+<td>The current owner of the project, may be null.</td>
+</tr>
+<tr>
+<td>current_status</td>
+<td>A description of the project’s status containing a color (must be either null or one of: green, yellow, red) and a short description.</td>
+</tr>
+<tr>
+<td>due_date</td>
+<td>The day on which this project is due. This takes a date with format YYYY-MM-DD.</td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>Read-only. The time at which this project was created.</td>
+</tr>
+<tr>
+<td>modified_at</td>
+<td>Read-only. The time at which this project was last modified. </td>
+</tr>
+<tr>
+<td>archived</td>
+<td>True if the project is archived, false if not. Archived projects do not show in the UI by default and may be treated differently for queries.</td>
+</tr>
+<tr>
+<td>public</td>
+<td>True if the project is public to the organization. If false, do not share this project with other users in this organization without explicitly checking to see if they have access.</td>
+</tr>
+<tr>
+<td>members</td>
+<td>Read-only. Array of users who are members of this project.</td>
+</tr>
+<tr>
+<td>followers</td>
+<td>Read-only. Array of users following this project. Followers are a subset of members who receive all notifcations for a project, the default notification setting when adding members to a project in-product.</td>
+</tr>
+<tr>
+<td>color</td>
+<td>Color of the project. Must be either null or one of: dark-pink, dark-green, dark-blue, dark-red, dark-teal, dark-brown, dark-orange, dark-purple, dark-warm-gray, light-pink, light-green, light-blue, light-red, light-teal, light-yellow, light-orange, light-purple, light-warm-gray.</td>
+</tr>
+<tr>
+<td>notes</td>
+<td>More detailed, free-form textual information associated with the project.</td>
+</tr>
+<tr>
+<td>workspace</td>
+<td>The workspace or organization this project is associated with.</td>
+</tr>
+<tr>
+<td>team</td>
+<td>The team that this project is shared with.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Get-Tasks-for-Project"><a href="#Get-Tasks-for-Project" class="headerlink" title="Get Tasks for Project"></a>Get Tasks for Project</h3><pre><code class="json highlight">{
+  <span class="attr">"data"</span>: [
+    {
+      <span class="attr">"id"</span>: <span class="number">82341455320278</span>,
+      <span class="attr">"created_at"</span>: <span class="string">"2016-01-20T16:23:57.243Z"</span>,
+      <span class="attr">"modified_at"</span>: <span class="string">"2016-01-20T16:23:58.850Z"</span>,
+      <span class="attr">"name"</span>: <span class="string">"BackLog:"</span>,
+      <span class="attr">"notes"</span>: <span class="string">""</span>,
+      <span class="attr">"completed"</span>: <span class="literal">false</span>,
+      <span class="attr">"assignee_status"</span>: <span class="string">"upcoming"</span>,
+      <span class="attr">"completed_at"</span>: <span class="literal">null</span>,
+      <span class="attr">"due_on"</span>: <span class="literal">null</span>,
+      <span class="attr">"due_at"</span>: <span class="literal">null</span>,
+      <span class="attr">"assignee"</span>: <span class="literal">null</span>,
+      <span class="attr">"hearted"</span>: <span class="literal">false</span>,
+      <span class="attr">"followers"</span>: [
+        {
+          <span class="attr">"id"</span>: <span class="number">82341441964652</span>
+        }
+      ]
+    },
+    {
+      <span class="attr">"id"</span>: <span class="number">82341455320286</span>,
+      <span class="attr">"created_at"</span>: <span class="string">"2016-01-20T16:24:00.314Z"</span>,
+      <span class="attr">"modified_at"</span>: <span class="string">"2016-04-06T22:26:16.653Z"</span>,
+      <span class="attr">"name"</span>: <span class="string">"Finish Strip API integration"</span>,
+      <span class="attr">"notes"</span>: <span class="string">"testing"</span>,
+      <span class="attr">"completed"</span>: <span class="literal">false</span>,
+      <span class="attr">"assignee_status"</span>: <span class="string">"inbox"</span>,
+      <span class="attr">"completed_at"</span>: <span class="literal">null</span>,
+      <span class="attr">"due_on"</span>: <span class="literal">null</span>,
+      <span class="attr">"due_at"</span>: <span class="literal">null</span>,
+      <span class="attr">"hearted"</span>: <span class="literal">false</span>,
+      <span class="attr">"assignee"</span>: {
+        <span class="attr">"id"</span>: <span class="number">82335341048251</span>
+      },
+      <span class="attr">"followers"</span>: [
+        {
+          <span class="attr">"id"</span>: <span class="number">82341441964652</span>
+        },
+        {
+          <span class="attr">"id"</span>: <span class="number">82335341048251</span>
+        }
+      ]
+    }
+  ]
+}
+</code></pre>
+<h4 id="Request-3"><a href="#Request-3" class="headerlink" title="Request"></a>Request</h4><p><code>GET/projects/:projectId/tasks</code></p>
+<p><code>GET /projects/82341455320268/tasks?opt_fields=id,assignee,assignee_status,created_at,completed,completed_at,due_on,due_at,followers,hearted,modified_at,notes,name&amp;limit=10</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>Globally unique ID of the task.</td>
+</tr>
+<tr>
+<td>assignee</td>
+<td>User to which this task is assigned, or null if the task is unassigned.</td>
+</tr>
+<tr>
+<td>assignee_status</td>
+<td>Scheduling status of this task for the user it is assigned to. </td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>The time at which this task was created.</td>
+</tr>
+<tr>
+<td>completed</td>
+<td>True if the task is currently marked complete, false if not.</td>
+</tr>
+<tr>
+<td>completed_at</td>
+<td>The time at which this task was completed, or null if the task is incomplete.</td>
+</tr>
+<tr>
+<td>due_on</td>
+<td>Date on which this task is due, or null if the task has no due date. </td>
+</tr>
+<tr>
+<td>due_at</td>
+<td>Date and time on which this task is due, or null if the task has no due time.</td>
+</tr>
+<tr>
+<td>external</td>
+<td>The external field allows you to store app-specific metadata on tasks, including an id that can be used to retrieve tasks and a data blob that can store app-specific character strings. </td>
+</tr>
+<tr>
+<td>followers</td>
+<td>Array of users following this task.</td>
+</tr>
+<tr>
+<td>hearted</td>
+<td>True if the task is hearted by the authorized user, false if not.</td>
+</tr>
+<tr>
+<td>hearts</td>
+<td>Array of users who have hearted this task.</td>
+</tr>
+<tr>
+<td>modfied_at</td>
+<td>The time at which this task was last modified.</td>
+</tr>
+<tr>
+<td>name</td>
+<td>Name of the task.</td>
+</tr>
+<tr>
+<td>notes</td>
+<td>More detailed, free-form textual information associated with the task.</td>
+</tr>
+<tr>
+<td>num_hearts</td>
+<td>The number of users who have hearted this task.</td>
+</tr>
+<tr>
+<td>projects</td>
+<td>Array of projects this task is associated with.</td>
+</tr>
+<tr>
+<td>parent</td>
+<td>The parent of this task, or null if this is not a subtask.</td>
+</tr>
+<tr>
+<td>workspace</td>
+<td>The workspace this task is associated with.</td>
+</tr>
+<tr>
+<td>membership</td>
+<td>Array of projects this task is associated with and the section it is in.</td>
+</tr>
+<tr>
+<td>tags</td>
+<td>Array of tags associated with this task.</td>
+</tr>
+</tbody>
+</table>
+
+          
+              <h1 id="Wunderlist-API"><a href="#Wunderlist-API" class="headerlink" title="Wunderlist API"></a>Wunderlist API</h1><h2 id="Authentication"><a href="#Authentication" class="headerlink" title="Authentication"></a>Authentication</h2><p>Authenticated through basic OAuth. This will work much like our Harvest Implemenation. However the access_token does not seem to expire so no need to go fetch a new token</p>
+<h3 id="User-Authorization-Endpoint"><a href="#User-Authorization-Endpoint" class="headerlink" title="User Authorization Endpoint"></a>User Authorization Endpoint</h3><h4 id="Redirect-users-to-request-Wunderlist-access"><a href="#Redirect-users-to-request-Wunderlist-access" class="headerlink" title="Redirect users to request Wunderlist access"></a>Redirect users to request Wunderlist access</h4><p><code>GET https://www.wunderlist.com/oauth/authorize?client_id=ID&amp;redirect_uri=URL&amp;state=RANDOM</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>client_id</td>
+<td>required The Client ID you received from Wunderlist when you registered your application.</td>
+</tr>
+<tr>
+<td>redirect_uri</td>
+<td>required The URL in your app where users will be sent after authorization. See details below about redirect urls.</td>
+</tr>
+<tr>
+<td>state</td>
+<td>required An unguessable random string. It is used to protect against cross-site request forgery attacks.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="Exchange-code-for-an-access-token"><a href="#Exchange-code-for-an-access-token" class="headerlink" title="Exchange code for an access token"></a>Exchange code for an access token</h4><p><code>POST https://www.wunderlist.com/oauth/access_token</code></p>
+<pre><code class="json highlight">Response Back
+{
+  &quot;access_token&quot;: &quot;976d16a81ccf621a654fcc23193b09498b220e89eb72ced3&quot;
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>client_id</td>
+<td>required The Client ID you received from Wunderlist when you registered your application.</td>
+</tr>
+<tr>
+<td>client_secret</td>
+<td>required. The client secret you received from Wunderlist when you registered.</td>
+</tr>
+<tr>
+<td>code</td>
+<td>required. The code you received as a response to Step 1.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Basic-API"><a href="#Basic-API" class="headerlink" title="Basic API"></a>Basic API</h2><pre><code class="json highlight">GET a.wunderlist.com/api/v1/lists
+Status: 200
+{
+  &quot;id&quot;: 83526310,
+  &quot;created_at&quot;: &quot;2013-08-30T08:29:46.203Z&quot;,
+  &quot;title&quot;: &quot;Read Later&quot;,
+  &quot;list_type&quot;: &quot;list&quot;,
+  &quot;type&quot;: &quot;list&quot;,
+  &quot;revision&quot;: 10
+}
+</code></pre>
+<h3 id="Get-all-lists"><a href="#Get-all-lists" class="headerlink" title="Get all lists"></a>Get all lists</h3><h4 id="Request"><a href="#Request" class="headerlink" title="Request"></a>Request</h4><p><code>GET a.wunderlist.com/api/v1/lists</code></p>
+<h3 id="Get-all-tasks-in-a-list"><a href="#Get-all-tasks-in-a-list" class="headerlink" title="Get all tasks in a list"></a>Get all tasks in a list</h3><pre><code class="json highlight">GET a.wunderlist.com/api/v1/tasks
+Status: 200
+[
+  {
+    &quot;id&quot;: 409233670,
+    &quot;assignee_id&quot;: 12345,
+    &quot;assigner_id&quot;: 5432,
+    &quot;created_at&quot;: &quot;2013-08-30T08:36:13.273Z&quot;,
+    &quot;created_by_id&quot;: 6234958,
+    &quot;due_date&quot;: &quot;2013-08-30&quot;,
+    &quot;list_id&quot;: 123,
+    &quot;revision&quot;: 1,
+    &quot;starred&quot;: true,
+    &quot;title&quot;: &quot;Hello&quot;
+  }
+]
+</code></pre>
+<h4 id="Request-1"><a href="#Request-1" class="headerlink" title="Request"></a>Request</h4><p><code>GET a.wunderlist.com/api/v1/tasks</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>list_id</td>
+<td>required</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Get-all-subtasks-in-a-task"><a href="#Get-all-subtasks-in-a-task" class="headerlink" title="Get all subtasks in a task"></a>Get all subtasks in a task</h3><pre><code class="json highlight">GET a.wunderlist.com/api/v1/subtasks
+Status: 200
+json
+[
+  {
+    &quot;id&quot;: 409233670,
+    &quot;task_id&quot;: 123,
+    &quot;created_at&quot;: &quot;2013-08-30T08:36:13.273Z&quot;,
+    &quot;created_by_id&quot;: 123456,
+    &quot;revision&quot;: 1,
+    &quot;title&quot;: &quot;Hello&quot;
+  }
+]
+</code></pre>
+<h4 id="Request-2"><a href="#Request-2" class="headerlink" title="Request"></a>Request</h4><p><code>GET a.wunderlist.com/api/v1/subtasks</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>task_id</td>
+<td>required</td>
+</tr>
+</tbody>
+</table>
+
+          
+              <h1 id="FreshBooks-API"><a href="#FreshBooks-API" class="headerlink" title="FreshBooks API"></a>FreshBooks API</h1><h3 id="side-note-The-API-docs-at-FreshBooks-is-super-sparse"><a href="#side-note-The-API-docs-at-FreshBooks-is-super-sparse" class="headerlink" title="side note: The API docs at FreshBooks is super sparse."></a>side note: The API docs at FreshBooks is super sparse.</h3><h3 id="bigger-side-note-xml-api-only"><a href="#bigger-side-note-xml-api-only" class="headerlink" title="bigger side note: xml api only!"></a>bigger side note: xml api only!</h3><h2 id="Authentication"><a href="#Authentication" class="headerlink" title="Authentication"></a>Authentication</h2><p>Authenticated through basic OAuth 1.0 flow. This will require us to go through three endpoints in order to have a user authorized. The access_token does not seem to expire so no need to go fetch a new token</p>
+<h3 id="User-Authorization-Endpoint"><a href="#User-Authorization-Endpoint" class="headerlink" title="User Authorization Endpoint"></a>User Authorization Endpoint</h3><h4 id="Request-Token-URL"><a href="#Request-Token-URL" class="headerlink" title="Request Token URL"></a>Request Token URL</h4><p>You must use HTTP POST when requesting an unauthorized Request Token. Because FreshBooks uses 1.0 Revision A of the OAuth specification, the ‘oauth_callback’ parameter must be specified.</p>
+<p><code>https://sample.freshbooks.com/oauth/oauth_request.php</code></p>
+<h4 id="Redirect-users-to-request-FreshBooks-access"><a href="#Redirect-users-to-request-FreshBooks-access" class="headerlink" title="Redirect users to request FreshBooks access"></a>Redirect users to request FreshBooks access</h4><p>HTTP GET should be used when sending a user to the User Authorization URL to authorize an OAuth Request Token. The user will then enter their FreshBooks account credentials using a secure form and the information will be sent to FreshBooks using HTTP POST. Upon verification of the user credentials, FreshBooks will redirect the user to the URL specified in the ‘oauth_callback’ parameter supplied when requesting an unauthorized Request Token.</p>
+<p><code>GET https://#{sample}.freshbooks.com/oauth/oauth_authorize.php</code></p>
+<pre><code class="json highlight">Response Back
+{
+  &quot;access_token&quot;: &quot;976d16a81ccf621a654fcc23193b09498b220e89eb72ced3&quot;
+}
+</code></pre>
+<h4 id="Exchange-code-for-an-access-token"><a href="#Exchange-code-for-an-access-token" class="headerlink" title="Exchange code for an access token"></a>Exchange code for an access token</h4><p>You must use HTTP POST when exchanging an authorized Request Token for an Access Token. Once again, because FreshBooks uses 1.0 Revision A of the OAuth specification, the ‘oauth_verifier’ parameter must be specified.</p>
+<p><code>POST https://#{sample}.freshbooks.com/oauth/oauth_access.php</code></p>
+<h2 id="Basic-API"><a href="#Basic-API" class="headerlink" title="Basic API"></a>Basic API</h2><pre><code class="json highlight">Get Clients
+request XML to JSON
+{
+  &quot;request&quot;: {
+    &quot;-method&quot;: &quot;client.list&quot;,
+    &quot;email&quot;: &quot;janedoe@freshbooks.com&quot;,
+    &quot;username&quot;: &quot;janedoe&quot;,
+    &quot;updated_from&quot;: &quot;2009-01-01 00:00:00&quot;,
+    &quot;updated_to&quot;: &quot;2009-12-01 00:00:00&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;per_page&quot;: &quot;15&quot;,
+    &quot;folder&quot;: &quot;active&quot;,
+    &quot;notes&quot;: &quot;email&quot;
+  }
+}
+</code></pre>
+<h3 id="Get-Clients"><a href="#Get-Clients" class="headerlink" title="Get Clients"></a>Get Clients</h3><p><code>https://#{sample}.freshbooks.com/api/2.1/xml-in</code></p>
+<pre><code class="json highlight">Get Clients
+response XML to JSON
+{
+  &quot;response&quot;: {
+    &quot;-xmlns&quot;: &quot;https://www.freshbooks.com/api/&quot;,
+    &quot;-status&quot;: &quot;ok&quot;,
+    &quot;clients&quot;: {
+      &quot;-page&quot;: &quot;1&quot;,
+      &quot;-per_page&quot;: &quot;15&quot;,
+      &quot;-pages&quot;: &quot;3&quot;,
+      &quot;-total&quot;: &quot;42&quot;,
+      &quot;client&quot;: {
+        &quot;client_id&quot;: &quot;13&quot;,
+        &quot;first_name&quot;: &quot;Jane&quot;,
+        &quot;last_name&quot;: &quot;Doe&quot;,
+        &quot;organization&quot;: &quot;ABC Corp&quot;,
+        &quot;email&quot;: &quot;janedoe@freshbooks.com&quot;,
+        &quot;username&quot;: &quot;janedoe&quot;,
+        &quot;contacts&quot;: {
+          &quot;contact_id&quot;: &quot;15&quot;,
+          &quot;username&quot;: &quot;alex&quot;,
+          &quot;email&quot;: &quot;johnmcnicol@freshbooks.com&quot;
+        },
+        &quot;work_phone&quot;: &quot;(555) 123-4567&quot;,
+        &quot;home_phone&quot;: &quot;(555) 234-5678&quot;,
+        &quot;language&quot;: &quot;en&quot;,
+        &quot;currency_code&quot;: &quot;USD&quot;,
+        &quot;credit&quot;: {
+          &quot;-currency&quot;: &quot;USD&quot;,
+          &quot;-deprecated&quot;: &quot;true&quot;,
+          &quot;#text&quot;: &quot;123.45&quot;
+        },
+        &quot;credits&quot;: {
+          &quot;credit&quot;: [
+            {
+              &quot;-currency&quot;: &quot;USD&quot;,
+              &quot;#text&quot;: &quot;123.45&quot;
+            },
+            {
+              &quot;-currency&quot;: &quot;CAD&quot;,
+              &quot;#text&quot;: &quot;43.45&quot;
+            },
+            {
+              &quot;-currency&quot;: &quot;EUR&quot;,
+              &quot;#text&quot;: &quot;12.00&quot;
+            }
+          ]
+        },
+        &quot;notes&quot;: &quot;Prefers email over phone calls&quot;,
+        &quot;p_street1&quot;: &quot;123 Fake St.&quot;,
+        &quot;p_street2&quot;: &quot;Unit 555&quot;,
+        &quot;p_city&quot;: &quot;New York&quot;,
+        &quot;p_state&quot;: &quot;New York&quot;,
+        &quot;p_country&quot;: &quot;United States&quot;,
+        &quot;p_code&quot;: &quot;553132&quot;,
+        &quot;url&quot;: {
+          &quot;-deprecated&quot;: &quot;true&quot;,
+          &quot;#text&quot;: &quot;https://sample.freshbooks.com/view/Vbbfs324trTkxer&quot;
+        },
+        &quot;auth_url&quot;: {
+          &quot;-deprecated&quot;: &quot;true&quot;,
+          &quot;#text&quot;: &quot;https://sample.freshbooks.com/clients/13&quot;
+        },
+        &quot;links&quot;: {
+          &quot;client_view&quot;: &quot;https://sample.freshbooks.com/view/Vbbfs324trTkxer&quot;,
+          &quot;view&quot;: &quot;https://sample.freshbooks.com/clients/13&quot;,
+          &quot;statement&quot;: &quot;https://sample.freshbooks.com/view/3EbEwAkJGJkuJHSN&quot;
+        },
+        &quot;updated&quot;: &quot;2009-08-12 09:00:00&quot;,
+        &quot;folder&quot;: &quot;active&quot;
+      },
+      &quot;#text&quot;: &quot;  
+    ...  
+  &quot;
+    }
+  }
+}
+</code></pre>
+<h3 id="Get-Client-Projects"><a href="#Get-Client-Projects" class="headerlink" title="Get Client Projects"></a>Get Client Projects</h3><p><code>https://#{sample}.freshbooks.com/api/2.1/xml-in</code></p>
+<p>Filters</p>
+<ul>
+<li>client_id – return only projects assigned to this client</li>
+<li>task_id – return only projects with the given task_id</li>
+</ul>
+<pre><code class="json highlight">Get Client Projects
+request XML to JSON
+{
+  &quot;request&quot;: {
+    &quot;-method&quot;: &quot;project.list&quot;,
+    &quot;page&quot;: &quot;1&quot;,
+    &quot;per_page&quot;: &quot;15&quot;
+  }
+}
+</code></pre>
+<pre><code class="json highlight">Get Client Projects
+response XML to JSON
+{
+  &quot;response&quot;: {
+    &quot;-xmlns&quot;: &quot;https://www.freshbooks.com/api/&quot;,
+    &quot;-status&quot;: &quot;ok&quot;,
+    &quot;parsererror&quot;: {
+      &quot;-style&quot;: &quot;display: block; white-space: pre; border: 2px solid #c77; padding: 0 1em 0 1em; margin: 1em; background-color: #fdd; color: black&quot;,
+      &quot;h3&quot;: [
+        &quot;This page contains the following errors:&quot;,
+        &quot;Below is a rendering of the page up to the first error.&quot;
+      ],
+      &quot;div&quot;: {
+        &quot;-style&quot;: &quot;font-family:monospace;font-size:12px&quot;,
+        &quot;#text&quot;: &quot;error on line 41 at column 18: StartTag: invalid element name
+&quot;
+      }
+    },
+    &quot;projects&quot;: {
+      &quot;-page&quot;: &quot;1&quot;,
+      &quot;-per_page&quot;: &quot;15&quot;,
+      &quot;-pages&quot;: &quot;1&quot;,
+      &quot;-total&quot;: &quot;5&quot;,
+      &quot;project&quot;: {
+        &quot;project_id&quot;: &quot;6&quot;,
+        &quot;name&quot;: &quot;Super Fun Project&quot;,
+        &quot;rate&quot;: &quot;11000&quot;,
+        &quot;bill_method&quot;: &quot;flat-rate&quot;,
+        &quot;client_id&quot;: &quot;119&quot;,
+        &quot;hour_budget&quot;: &quot;100&quot;,
+        &quot;tasks&quot;: {
+          &quot;task&quot;: [
+            { &quot;task_id&quot;: &quot;5&quot; },
+            { &quot;task_id&quot;: &quot;12&quot; },
+            {
+              &quot;task_id&quot;: &quot;6&quot;,
+              &quot;rate&quot;: &quot;25&quot;
+            },
+            {
+              &quot;task_id&quot;: &quot;7&quot;,
+              &quot;rate&quot;: &quot;35&quot;
+            }
+          ]
+        },
+        &quot;staff&quot;: {
+          &quot;staff&quot;: [
+            { &quot;staff_id&quot;: &quot;1&quot; },
+            { &quot;staff_id&quot;: &quot;2&quot; },
+            { &quot;staff_id&quot;: &quot;3&quot; }
+          ],
+          &quot;staff_id&quot;: [
+            {
+              &quot;-deprecated&quot;: &quot;true&quot;,
+              &quot;#text&quot;: &quot;1&quot;
+            },
+            {
+              &quot;-deprecated&quot;: &quot;true&quot;,
+              &quot;#text&quot;: &quot;2&quot;
+            },
+            {
+              &quot;-deprecated&quot;: &quot;true&quot;,
+              &quot;#text&quot;: &quot;3&quot;
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<h3 id="Get-Project-Time-Entries"><a href="#Get-Project-Time-Entries" class="headerlink" title="Get Project Time Entries"></a>Get Project Time Entries</h3><p><code>https://#{sample}.freshbooks.com/api/2.1/xml-in</code></p>
+<p>Filters</p>
+<ul>
+<li>project_id</li>
+<li>task_id</li>
+<li>date_from</li>
+<li>date_to</li>
+</ul>
+<pre><code class="json highlight">Get Projects Time Entries
+request XML to JSON
+{
+  &quot;request&quot;: {
+    &quot;-method&quot;: &quot;time_entry.create&quot;,
+    &quot;time_entry&quot;: {
+      &quot;project_id&quot;: &quot;1&quot;,
+      &quot;task_id&quot;: &quot;1&quot;,
+      &quot;staff_id&quot;: &quot;1&quot;,
+      &quot;hours&quot;: &quot;4.5&quot;,
+      &quot;notes&quot;: &quot;Phone consultation&quot;,
+      &quot;date&quot;: &quot;2007-01-01&quot;
+    }
+  }
+}
+</code></pre>
+<pre><code class="json highlight">Get Projects Time Entries
+response XML to JSON
+{
+  &quot;response&quot;: {
+    &quot;-xmlns&quot;: &quot;https://www.freshbooks.com/api/&quot;,
+    &quot;-status&quot;: &quot;ok&quot;,
+    &quot;time_entries&quot;: {
+      &quot;-page&quot;: &quot;1&quot;,
+      &quot;-per_page&quot;: &quot;15&quot;,
+      &quot;-pages&quot;: &quot;10&quot;,
+      &quot;-total&quot;: &quot;142&quot;,
+      &quot;time_entry&quot;: [
+        {
+          &quot;time_entry_id&quot;: &quot;211&quot;,
+          &quot;staff_id&quot;: &quot;1&quot;,
+          &quot;project_id&quot;: &quot;1&quot;,
+          &quot;task_id&quot;: &quot;1&quot;,
+          &quot;hours&quot;: &quot;2&quot;,
+          &quot;date&quot;: &quot;2009-03-13&quot;,
+          &quot;notes&quot;: &quot;Sample Notes&quot;,
+          &quot;billed&quot;: &quot;0&quot;
+        },
+        &quot;  
+    ...  
+    &quot;
+      ],
+      &quot;#text&quot;: &quot;  
+    ...  
+  &quot;
+    }
+  }
+}
+</code></pre>
+
+          
+              <h1 id="QuickBooks-API"><a href="#QuickBooks-API" class="headerlink" title="QuickBooks API"></a>QuickBooks API</h1><h2 id="Authentication"><a href="#Authentication" class="headerlink" title="Authentication"></a>Authentication</h2><p>Authenticated through basic OAuth 1.0 flow. This will require us to go through three endpoints in order to have a user authorized. The flow is similiar to wait is explained in the freshbooks auth.</p>
+<p>Intuit OAuth Service URLs</p>
+<ul>
+<li>Request token URL is:  <a href="https://oauth.intuit.com/oauth/v1/get_request_token">https://oauth.intuit.com/oauth/v1/get_request_token</a></li>
+<li>User authorization URL is: <a href="https://appcenter.intuit.com/Connect/Begin">https://appcenter.intuit.com/Connect/Begin</a></li>
+<li>Access Token Request URL is: <a href="https://oauth.intuit.com/oauth/v1/get_access_token">https://oauth.intuit.com/oauth/v1/get_access_token</a></li>
+</ul>
+<p>From the redirect to the OAuth callback URL, get these parameters:</p>
+<ul>
+<li>realmId</li>
+<li>oauth_verifier</li>
+<li>oauth_token</li>
+</ul>
+<p><code>note:</code> realmId is the companyId we will use to query the api by.</p>
+<p><code>additional note:</code> Implement an auto-renew strategy for the OAuth access token and the access token secret  because they expire after 180 days. </p>
+<h2 id="Basic-API"><a href="#Basic-API" class="headerlink" title="Basic API"></a>Basic API</h2><p>The API is pretty advanced but if we are only going to use this for time tracking then we really only need one endpoint to hit as you do everything through sql queries.</p>
+<p>###Query a timeactivity object</p>
+<p>Production Base URL: <a href="https://quickbooks.api.intuit.com">https://quickbooks.api.intuit.com</a></p>
+<pre><code class="json highlight">Operation: GET /v3/company/&lt;companyID&gt;/query?query=&lt;selectStatement&gt;
+Content type: application/text
+
+SAMPLE QUERY
+select * from TimeActivity where TxnDate &gt; '2014-09-14'
+</code></pre>
+<pre><code class="json highlight">{
+  <span class="attr">"TimeActivity"</span>: {
+    <span class="attr">"TxnDate"</span>: <span class="string">"2014-09-16"</span>,
+    <span class="attr">"NameOf"</span>: <span class="string">"Employee"</span>,
+    <span class="attr">"EmployeeRef"</span>: {
+      <span class="attr">"value"</span>: <span class="string">"54"</span>,
+      <span class="attr">"name"</span>: <span class="string">"John Johnson"</span>
+    },
+    <span class="attr">"CustomerRef"</span>: {
+      <span class="attr">"value"</span>: <span class="string">"1"</span>,
+      <span class="attr">"name"</span>: <span class="string">"Amy's Bird Sanctuary"</span>
+    },
+    <span class="attr">"ItemRef"</span>: {
+      <span class="attr">"value"</span>: <span class="string">"4"</span>,
+      <span class="attr">"name"</span>: <span class="string">"Design"</span>
+    },
+    <span class="attr">"BillableStatus"</span>: <span class="string">"Billable"</span>,
+    <span class="attr">"Taxable"</span>: <span class="literal">false</span>,
+    <span class="attr">"HourlyRate"</span>: <span class="number">75</span>,
+    <span class="attr">"Hours"</span>: <span class="number">5</span>,
+    <span class="attr">"Minutes"</span>: <span class="number">0</span>,
+    <span class="attr">"Description"</span>: <span class="string">"Updated descirption"</span>,
+    <span class="attr">"domain"</span>: <span class="string">"QBO"</span>,
+    <span class="attr">"sparse"</span>: <span class="literal">false</span>,
+    <span class="attr">"Id"</span>: <span class="string">"3"</span>,
+    <span class="attr">"SyncToken"</span>: <span class="string">"1"</span>,
+    <span class="attr">"MetaData"</span>: {
+      <span class="attr">"CreateTime"</span>: <span class="string">"2014-09-17T11:53:15-07:00"</span>,
+      <span class="attr">"LastUpdatedTime"</span>: <span class="string">"2015-07-28T11:59:41-07:00"</span>
+    }
+  },
+  <span class="attr">"time"</span>: <span class="string">"2015-07-28T11:59:41.178-07:00"</span>
+}
+</code></pre>
+<p>``</p>
+
+          
+              <h1 id="Github-API"><a href="#Github-API" class="headerlink" title="Github API"></a>Github API</h1><h2 id="Authentication"><a href="#Authentication" class="headerlink" title="Authentication"></a>Authentication</h2><p>Authenticated through basic OAuth. This will work much like our Harvest Implemenation. It doesn’t look like the auth token expires. So no need to refresh the token.</p>
+<h3 id="User-Authorization-Endpoint"><a href="#User-Authorization-Endpoint" class="headerlink" title="User Authorization Endpoint"></a>User Authorization Endpoint</h3><h4 id="Redirect-users-to-request-Github-access"><a href="#Redirect-users-to-request-Github-access" class="headerlink" title="Redirect users to request Github access"></a>Redirect users to request Github access</h4><p><code>GET https://github.com/login/oauth/authorize</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>client_id</td>
+<td>required The client ID you received from GitHub when you</td>
+</tr>
+<tr>
+<td>redirect_uri</td>
+<td>The URL in your app where users will be sent after authorization. </td>
+</tr>
+<tr>
+<td>scope</td>
+<td>A comma separated list of scopes. If not provided, scope defaults to an empty list of scopes for users that don’t have a valid token for the app. </td>
+</tr>
+<tr>
+<td>state</td>
+<td>An unguessable random string. It is used to protect against cross-site request forgery attacks.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="Response"><a href="#Response" class="headerlink" title="Response"></a>Response</h4><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>code</td>
+<td>If response_type=code in the request, this is the code your app can exchange for a token</td>
+</tr>
+<tr>
+<td>state</td>
+<td>The state parameter that was sent with the authorizing request</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Token-Exchange-Endpoint"><a href="#Token-Exchange-Endpoint" class="headerlink" title="Token Exchange Endpoint"></a>Token Exchange Endpoint</h3><h4 id="Request"><a href="#Request" class="headerlink" title="Request"></a>Request</h4><p><code>POST https://github.com/login/oauth/access_token</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>client_id</td>
+<td>The client ID you received from GitHub when you</td>
+</tr>
+<tr>
+<td>client_secret</td>
+<td>The client secret you received from GitHub when you registered.</td>
+</tr>
+<tr>
+<td>code</td>
+<td>The code you received as a response to Step 1.</td>
+</tr>
+<tr>
+<td>redirect_uri</td>
+<td>The URL in your app where users will be sent after authorization. </td>
+</tr>
+<tr>
+<td>state</td>
+<td>The unguessable random string you optionally provided in Step 1.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="json highlight">access_token=e72e16c7e42f292c6912e7710c838347ae178b4a&amp;scope=user%2Cgist&amp;token_type=bearer
+</code></pre>
+<h4 id="Response-1"><a href="#Response-1" class="headerlink" title="Response"></a>Response</h4><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>access_token</td>
+<td>Token used to authorize the user upon each request to API.</td>
+</tr>
+<tr>
+<td>default_scope</td>
+<td>Grants read/write access to profile info only. Note that this scope includes user:email and user:follow. Grants write access to gists.</td>
+</tr>
+<tr>
+<td>token_type</td>
+<td>bearer</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Basic-API"><a href="#Basic-API" class="headerlink" title="Basic API"></a>Basic API</h2><pre><code class="json highlight">GET /user/orgs
+Status: 200
+[
+  {
+    &quot;login&quot;: &quot;github&quot;,
+    &quot;id&quot;: 1,
+    &quot;url&quot;: &quot;https://api.github.com/orgs/github&quot;,
+    &quot;repos_url&quot;: &quot;https://api.github.com/orgs/github/repos&quot;,
+    &quot;events_url&quot;: &quot;https://api.github.com/orgs/github/events&quot;,
+    &quot;hooks_url&quot;: &quot;https://api.github.com/orgs/github/hooks&quot;,
+    &quot;issues_url&quot;: &quot;https://api.github.com/orgs/github/issues&quot;,
+    &quot;members_url&quot;: &quot;https://api.github.com/orgs/github/members{/member}&quot;,
+    &quot;public_members_url&quot;: &quot;https://api.github.com/orgs/github/public_members{/member}&quot;,
+    &quot;avatar_url&quot;: &quot;https://github.com/images/error/octocat_happy.gif&quot;,
+    &quot;description&quot;: &quot;A great organization&quot;
+  }
+]
+</code></pre>
+<h3 id="Get-user-organizations"><a href="#Get-user-organizations" class="headerlink" title="Get user organizations"></a>Get user organizations</h3><h4 id="Request-1"><a href="#Request-1" class="headerlink" title="Request"></a>Request</h4><p><code>GET /user/orgs</code></p>
+<pre><code class="json highlight">GET /orgs/:org/repos
+Status: 200
+[
+  {
+    &quot;id&quot;: 1296269,
+    &quot;owner&quot;: {
+      &quot;login&quot;: &quot;octocat&quot;,
+      &quot;id&quot;: 1,
+      &quot;avatar_url&quot;: &quot;https://github.com/images/error/octocat_happy.gif&quot;,
+      &quot;gravatar_id&quot;: &quot;&quot;,
+      &quot;url&quot;: &quot;https://api.github.com/users/octocat&quot;,
+      &quot;html_url&quot;: &quot;https://github.com/octocat&quot;,
+      &quot;followers_url&quot;: &quot;https://api.github.com/users/octocat/followers&quot;,
+      &quot;following_url&quot;: &quot;https://api.github.com/users/octocat/following{/other_user}&quot;,
+      &quot;gists_url&quot;: &quot;https://api.github.com/users/octocat/gists{/gist_id}&quot;,
+      &quot;starred_url&quot;: &quot;https://api.github.com/users/octocat/starred{/owner}{/repo}&quot;,
+      &quot;subscriptions_url&quot;: &quot;https://api.github.com/users/octocat/subscriptions&quot;,
+      &quot;organizations_url&quot;: &quot;https://api.github.com/users/octocat/orgs&quot;,
+      &quot;repos_url&quot;: &quot;https://api.github.com/users/octocat/repos&quot;,
+      &quot;events_url&quot;: &quot;https://api.github.com/users/octocat/events{/privacy}&quot;,
+      &quot;received_events_url&quot;: &quot;https://api.github.com/users/octocat/received_events&quot;,
+      &quot;type&quot;: &quot;User&quot;,
+      &quot;site_admin&quot;: false
+    },
+    &quot;name&quot;: &quot;Hello-World&quot;,
+    &quot;full_name&quot;: &quot;octocat/Hello-World&quot;,
+    &quot;description&quot;: &quot;This your first repo!&quot;,
+    &quot;private&quot;: false,
+    &quot;fork&quot;: false,
+    &quot;url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World&quot;,
+    &quot;html_url&quot;: &quot;https://github.com/octocat/Hello-World&quot;,
+    &quot;archive_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/{archive_format}{/ref}&quot;,
+    &quot;assignees_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/assignees{/user}&quot;,
+    &quot;blobs_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/git/blobs{/sha}&quot;,
+    &quot;branches_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/branches{/branch}&quot;,
+    &quot;clone_url&quot;: &quot;https://github.com/octocat/Hello-World.git&quot;,
+    &quot;collaborators_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/collaborators{/collaborator}&quot;,
+    &quot;comments_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/comments{/number}&quot;,
+    &quot;commits_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/commits{/sha}&quot;,
+    &quot;compare_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/compare/{base}...{head}&quot;,
+    &quot;contents_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/contents/{+path}&quot;,
+    &quot;contributors_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/contributors&quot;,
+    &quot;deployments_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/deployments&quot;,
+    &quot;downloads_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/downloads&quot;,
+    &quot;events_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/events&quot;,
+    &quot;forks_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/forks&quot;,
+    &quot;git_commits_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/git/commits{/sha}&quot;,
+    &quot;git_refs_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/git/refs{/sha}&quot;,
+    &quot;git_tags_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/git/tags{/sha}&quot;,
+    &quot;git_url&quot;: &quot;git:github.com/octocat/Hello-World.git&quot;,
+    &quot;hooks_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/hooks&quot;,
+    &quot;issue_comment_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/issues/comments{/number}&quot;,
+    &quot;issue_events_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/issues/events{/number}&quot;,
+    &quot;issues_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/issues{/number}&quot;,
+    &quot;keys_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/keys{/key_id}&quot;,
+    &quot;labels_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/labels{/name}&quot;,
+    &quot;languages_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/languages&quot;,
+    &quot;merges_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/merges&quot;,
+    &quot;milestones_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/milestones{/number}&quot;,
+    &quot;mirror_url&quot;: &quot;git:git.example.com/octocat/Hello-World&quot;,
+    &quot;notifications_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/notifications{?since, all, participating}&quot;,
+    &quot;pulls_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/pulls{/number}&quot;,
+    &quot;releases_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/releases{/id}&quot;,
+    &quot;ssh_url&quot;: &quot;git@github.com:octocat/Hello-World.git&quot;,
+    &quot;stargazers_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/stargazers&quot;,
+    &quot;statuses_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/statuses/{sha}&quot;,
+    &quot;subscribers_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/subscribers&quot;,
+    &quot;subscription_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/subscription&quot;,
+    &quot;svn_url&quot;: &quot;https://svn.github.com/octocat/Hello-World&quot;,
+    &quot;tags_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/tags&quot;,
+    &quot;teams_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/teams&quot;,
+    &quot;trees_url&quot;: &quot;http://api.github.com/repos/octocat/Hello-World/git/trees{/sha}&quot;,
+    &quot;homepage&quot;: &quot;https://github.com&quot;,
+    &quot;language&quot;: null,
+    &quot;forks_count&quot;: 9,
+    &quot;stargazers_count&quot;: 80,
+    &quot;watchers_count&quot;: 80,
+    &quot;size&quot;: 108,
+    &quot;default_branch&quot;: &quot;master&quot;,
+    &quot;open_issues_count&quot;: 0,
+    &quot;has_issues&quot;: true,
+    &quot;has_wiki&quot;: true,
+    &quot;has_pages&quot;: false,
+    &quot;has_downloads&quot;: true,
+    &quot;pushed_at&quot;: &quot;2011-01-26T19:06:43Z&quot;,
+    &quot;created_at&quot;: &quot;2011-01-26T19:01:12Z&quot;,
+    &quot;updated_at&quot;: &quot;2011-01-26T19:14:43Z&quot;,
+    &quot;permissions&quot;: {
+      &quot;admin&quot;: false,
+      &quot;push&quot;: false,
+      &quot;pull&quot;: true
+    }
+  }
+]
+</code></pre>
+<h3 id="Get-organization-repos"><a href="#Get-organization-repos" class="headerlink" title="Get organization repos"></a>Get organization repos</h3><h4 id="Request-2"><a href="#Request-2" class="headerlink" title="Request"></a>Request</h4><p><code>GET /orgs/:org/repos</code></p>
+<pre><code class="json highlight">GET /orgs/:org/issues
+Status: 200
+[
+  {
+    &quot;id&quot;: 1,
+    &quot;url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/issues/1347&quot;,
+    &quot;repository_url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World&quot;,
+    &quot;labels_url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/issues/1347/labels{/name}&quot;,
+    &quot;comments_url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/issues/1347/comments&quot;,
+    &quot;events_url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/issues/1347/events&quot;,
+    &quot;html_url&quot;: &quot;https://github.com/octocat/Hello-World/issues/1347&quot;,
+    &quot;number&quot;: 1347,
+    &quot;state&quot;: &quot;open&quot;,
+    &quot;title&quot;: &quot;Found a bug&quot;,
+    &quot;body&quot;: &quot;I&#39;m having a problem with this.&quot;,
+    &quot;user&quot;: {
+      &quot;login&quot;: &quot;octocat&quot;,
+      &quot;id&quot;: 1,
+      &quot;avatar_url&quot;: &quot;https://github.com/images/error/octocat_happy.gif&quot;,
+      &quot;gravatar_id&quot;: &quot;&quot;,
+      &quot;url&quot;: &quot;https://api.github.com/users/octocat&quot;,
+      &quot;html_url&quot;: &quot;https://github.com/octocat&quot;,
+      &quot;followers_url&quot;: &quot;https://api.github.com/users/octocat/followers&quot;,
+      &quot;following_url&quot;: &quot;https://api.github.com/users/octocat/following{/other_user}&quot;,
+      &quot;gists_url&quot;: &quot;https://api.github.com/users/octocat/gists{/gist_id}&quot;,
+      &quot;starred_url&quot;: &quot;https://api.github.com/users/octocat/starred{/owner}{/repo}&quot;,
+      &quot;subscriptions_url&quot;: &quot;https://api.github.com/users/octocat/subscriptions&quot;,
+      &quot;organizations_url&quot;: &quot;https://api.github.com/users/octocat/orgs&quot;,
+      &quot;repos_url&quot;: &quot;https://api.github.com/users/octocat/repos&quot;,
+      &quot;events_url&quot;: &quot;https://api.github.com/users/octocat/events{/privacy}&quot;,
+      &quot;received_events_url&quot;: &quot;https://api.github.com/users/octocat/received_events&quot;,
+      &quot;type&quot;: &quot;User&quot;,
+      &quot;site_admin&quot;: false
+    },
+    &quot;labels&quot;: [
+      {
+        &quot;url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/labels/bug&quot;,
+        &quot;name&quot;: &quot;bug&quot;,
+        &quot;color&quot;: &quot;f29513&quot;
+      }
+    ],
+    &quot;assignee&quot;: {
+      &quot;login&quot;: &quot;octocat&quot;,
+      &quot;id&quot;: 1,
+      &quot;avatar_url&quot;: &quot;https://github.com/images/error/octocat_happy.gif&quot;,
+      &quot;gravatar_id&quot;: &quot;&quot;,
+      &quot;url&quot;: &quot;https://api.github.com/users/octocat&quot;,
+      &quot;html_url&quot;: &quot;https://github.com/octocat&quot;,
+      &quot;followers_url&quot;: &quot;https://api.github.com/users/octocat/followers&quot;,
+      &quot;following_url&quot;: &quot;https://api.github.com/users/octocat/following{/other_user}&quot;,
+      &quot;gists_url&quot;: &quot;https://api.github.com/users/octocat/gists{/gist_id}&quot;,
+      &quot;starred_url&quot;: &quot;https://api.github.com/users/octocat/starred{/owner}{/repo}&quot;,
+      &quot;subscriptions_url&quot;: &quot;https://api.github.com/users/octocat/subscriptions&quot;,
+      &quot;organizations_url&quot;: &quot;https://api.github.com/users/octocat/orgs&quot;,
+      &quot;repos_url&quot;: &quot;https://api.github.com/users/octocat/repos&quot;,
+      &quot;events_url&quot;: &quot;https://api.github.com/users/octocat/events{/privacy}&quot;,
+      &quot;received_events_url&quot;: &quot;https://api.github.com/users/octocat/received_events&quot;,
+      &quot;type&quot;: &quot;User&quot;,
+      &quot;site_admin&quot;: false
+    },
+    &quot;milestone&quot;: {
+      &quot;url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/milestones/1&quot;,
+      &quot;html_url&quot;: &quot;https://github.com/octocat/Hello-World/milestones/v1.0&quot;,
+      &quot;labels_url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/milestones/1/labels&quot;,
+      &quot;id&quot;: 1002604,
+      &quot;number&quot;: 1,
+      &quot;state&quot;: &quot;open&quot;,
+      &quot;title&quot;: &quot;v1.0&quot;,
+      &quot;description&quot;: &quot;Tracking milestone for version 1.0&quot;,
+      &quot;creator&quot;: {
+        &quot;login&quot;: &quot;octocat&quot;,
+        &quot;id&quot;: 1,
+        &quot;avatar_url&quot;: &quot;https://github.com/images/error/octocat_happy.gif&quot;,
+        &quot;gravatar_id&quot;: &quot;&quot;,
+        &quot;url&quot;: &quot;https://api.github.com/users/octocat&quot;,
+        &quot;html_url&quot;: &quot;https://github.com/octocat&quot;,
+        &quot;followers_url&quot;: &quot;https://api.github.com/users/octocat/followers&quot;,
+        &quot;following_url&quot;: &quot;https://api.github.com/users/octocat/following{/other_user}&quot;,
+        &quot;gists_url&quot;: &quot;https://api.github.com/users/octocat/gists{/gist_id}&quot;,
+        &quot;starred_url&quot;: &quot;https://api.github.com/users/octocat/starred{/owner}{/repo}&quot;,
+        &quot;subscriptions_url&quot;: &quot;https://api.github.com/users/octocat/subscriptions&quot;,
+        &quot;organizations_url&quot;: &quot;https://api.github.com/users/octocat/orgs&quot;,
+        &quot;repos_url&quot;: &quot;https://api.github.com/users/octocat/repos&quot;,
+        &quot;events_url&quot;: &quot;https://api.github.com/users/octocat/events{/privacy}&quot;,
+        &quot;received_events_url&quot;: &quot;https://api.github.com/users/octocat/received_events&quot;,
+        &quot;type&quot;: &quot;User&quot;,
+        &quot;site_admin&quot;: false
+      },
+      &quot;open_issues&quot;: 4,
+      &quot;closed_issues&quot;: 8,
+      &quot;created_at&quot;: &quot;2011-04-10T20:09:31Z&quot;,
+      &quot;updated_at&quot;: &quot;2014-03-03T18:58:10Z&quot;,
+      &quot;closed_at&quot;: &quot;2013-02-12T13:22:01Z&quot;,
+      &quot;due_on&quot;: &quot;2012-10-09T23:39:01Z&quot;
+    },
+    &quot;locked&quot;: false,
+    &quot;comments&quot;: 0,
+    &quot;pull_request&quot;: {
+      &quot;url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/pulls/1347&quot;,
+      &quot;html_url&quot;: &quot;https://github.com/octocat/Hello-World/pull/1347&quot;,
+      &quot;diff_url&quot;: &quot;https://github.com/octocat/Hello-World/pull/1347.diff&quot;,
+      &quot;patch_url&quot;: &quot;https://github.com/octocat/Hello-World/pull/1347.patch&quot;
+    },
+    &quot;closed_at&quot;: null,
+    &quot;created_at&quot;: &quot;2011-04-22T13:33:48Z&quot;,
+    &quot;updated_at&quot;: &quot;2011-04-22T13:33:48Z&quot;
+  }
+]
+</code></pre>
+<h3 id="GET-organization-issues"><a href="#GET-organization-issues" class="headerlink" title="GET organization issues"></a>GET organization issues</h3><h4 id="Request-3"><a href="#Request-3" class="headerlink" title="Request"></a>Request</h4><p><code>GET /orgs/:org/issues</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>filter</td>
+<td>Indicates which sorts of issues to return. Can be one of: assigned: Issues assigned to you created: Issues created by you mentioned: Issues mentioning you subscribed: Issues you’re subscribed to updates for all: All issues the authenticated user can see, regardless of participation or creation Default: assigned</td>
+</tr>
+<tr>
+<td>state</td>
+<td>Indicates the state of the issues to return. Can be either open, closed, or all. Default: open</td>
+</tr>
+<tr>
+<td>labels</td>
+<td>A list of comma separated label names. Example: bug,ui,@high </td>
+</tr>
+<tr>
+<td>sort</td>
+<td>What to sort results by. Can be either created, updated, comments. Default: created</td>
+</tr>
+<tr>
+<td>direction</td>
+<td>The direction of the sort. Can be either asc or desc. Default: desc</td>
+</tr>
+<tr>
+<td>since</td>
+<td>Only issues updated at or after this time are returned. This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="json highlight">GET /repos/:owner/:repo/issues
+Status: 200
+[
+  {
+    &quot;id&quot;: 1,
+    &quot;url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/issues/1347&quot;,
+    &quot;repository_url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World&quot;,
+    &quot;labels_url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/issues/1347/labels{/name}&quot;,
+    &quot;comments_url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/issues/1347/comments&quot;,
+    &quot;events_url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/issues/1347/events&quot;,
+    &quot;html_url&quot;: &quot;https://github.com/octocat/Hello-World/issues/1347&quot;,
+    &quot;number&quot;: 1347,
+    &quot;state&quot;: &quot;open&quot;,
+    &quot;title&quot;: &quot;Found a bug&quot;,
+    &quot;body&quot;: &quot;I&#39;m having a problem with this.&quot;,
+    &quot;user&quot;: {
+      &quot;login&quot;: &quot;octocat&quot;,
+      &quot;id&quot;: 1,
+      &quot;avatar_url&quot;: &quot;https://github.com/images/error/octocat_happy.gif&quot;,
+      &quot;gravatar_id&quot;: &quot;&quot;,
+      &quot;url&quot;: &quot;https://api.github.com/users/octocat&quot;,
+      &quot;html_url&quot;: &quot;https://github.com/octocat&quot;,
+      &quot;followers_url&quot;: &quot;https://api.github.com/users/octocat/followers&quot;,
+      &quot;following_url&quot;: &quot;https://api.github.com/users/octocat/following{/other_user}&quot;,
+      &quot;gists_url&quot;: &quot;https://api.github.com/users/octocat/gists{/gist_id}&quot;,
+      &quot;starred_url&quot;: &quot;https://api.github.com/users/octocat/starred{/owner}{/repo}&quot;,
+      &quot;subscriptions_url&quot;: &quot;https://api.github.com/users/octocat/subscriptions&quot;,
+      &quot;organizations_url&quot;: &quot;https://api.github.com/users/octocat/orgs&quot;,
+      &quot;repos_url&quot;: &quot;https://api.github.com/users/octocat/repos&quot;,
+      &quot;events_url&quot;: &quot;https://api.github.com/users/octocat/events{/privacy}&quot;,
+      &quot;received_events_url&quot;: &quot;https://api.github.com/users/octocat/received_events&quot;,
+      &quot;type&quot;: &quot;User&quot;,
+      &quot;site_admin&quot;: false
+    },
+    &quot;labels&quot;: [
+      {
+        &quot;url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/labels/bug&quot;,
+        &quot;name&quot;: &quot;bug&quot;,
+        &quot;color&quot;: &quot;f29513&quot;
+      }
+    ],
+    &quot;assignee&quot;: {
+      &quot;login&quot;: &quot;octocat&quot;,
+      &quot;id&quot;: 1,
+      &quot;avatar_url&quot;: &quot;https://github.com/images/error/octocat_happy.gif&quot;,
+      &quot;gravatar_id&quot;: &quot;&quot;,
+      &quot;url&quot;: &quot;https://api.github.com/users/octocat&quot;,
+      &quot;html_url&quot;: &quot;https://github.com/octocat&quot;,
+      &quot;followers_url&quot;: &quot;https://api.github.com/users/octocat/followers&quot;,
+      &quot;following_url&quot;: &quot;https://api.github.com/users/octocat/following{/other_user}&quot;,
+      &quot;gists_url&quot;: &quot;https://api.github.com/users/octocat/gists{/gist_id}&quot;,
+      &quot;starred_url&quot;: &quot;https://api.github.com/users/octocat/starred{/owner}{/repo}&quot;,
+      &quot;subscriptions_url&quot;: &quot;https://api.github.com/users/octocat/subscriptions&quot;,
+      &quot;organizations_url&quot;: &quot;https://api.github.com/users/octocat/orgs&quot;,
+      &quot;repos_url&quot;: &quot;https://api.github.com/users/octocat/repos&quot;,
+      &quot;events_url&quot;: &quot;https://api.github.com/users/octocat/events{/privacy}&quot;,
+      &quot;received_events_url&quot;: &quot;https://api.github.com/users/octocat/received_events&quot;,
+      &quot;type&quot;: &quot;User&quot;,
+      &quot;site_admin&quot;: false
+    },
+    &quot;milestone&quot;: {
+      &quot;url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/milestones/1&quot;,
+      &quot;html_url&quot;: &quot;https://github.com/octocat/Hello-World/milestones/v1.0&quot;,
+      &quot;labels_url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/milestones/1/labels&quot;,
+      &quot;id&quot;: 1002604,
+      &quot;number&quot;: 1,
+      &quot;state&quot;: &quot;open&quot;,
+      &quot;title&quot;: &quot;v1.0&quot;,
+      &quot;description&quot;: &quot;Tracking milestone for version 1.0&quot;,
+      &quot;creator&quot;: {
+        &quot;login&quot;: &quot;octocat&quot;,
+        &quot;id&quot;: 1,
+        &quot;avatar_url&quot;: &quot;https://github.com/images/error/octocat_happy.gif&quot;,
+        &quot;gravatar_id&quot;: &quot;&quot;,
+        &quot;url&quot;: &quot;https://api.github.com/users/octocat&quot;,
+        &quot;html_url&quot;: &quot;https://github.com/octocat&quot;,
+        &quot;followers_url&quot;: &quot;https://api.github.com/users/octocat/followers&quot;,
+        &quot;following_url&quot;: &quot;https://api.github.com/users/octocat/following{/other_user}&quot;,
+        &quot;gists_url&quot;: &quot;https://api.github.com/users/octocat/gists{/gist_id}&quot;,
+        &quot;starred_url&quot;: &quot;https://api.github.com/users/octocat/starred{/owner}{/repo}&quot;,
+        &quot;subscriptions_url&quot;: &quot;https://api.github.com/users/octocat/subscriptions&quot;,
+        &quot;organizations_url&quot;: &quot;https://api.github.com/users/octocat/orgs&quot;,
+        &quot;repos_url&quot;: &quot;https://api.github.com/users/octocat/repos&quot;,
+        &quot;events_url&quot;: &quot;https://api.github.com/users/octocat/events{/privacy}&quot;,
+        &quot;received_events_url&quot;: &quot;https://api.github.com/users/octocat/received_events&quot;,
+        &quot;type&quot;: &quot;User&quot;,
+        &quot;site_admin&quot;: false
+      },
+      &quot;open_issues&quot;: 4,
+      &quot;closed_issues&quot;: 8,
+      &quot;created_at&quot;: &quot;2011-04-10T20:09:31Z&quot;,
+      &quot;updated_at&quot;: &quot;2014-03-03T18:58:10Z&quot;,
+      &quot;closed_at&quot;: &quot;2013-02-12T13:22:01Z&quot;,
+      &quot;due_on&quot;: &quot;2012-10-09T23:39:01Z&quot;
+    },
+    &quot;locked&quot;: false,
+    &quot;comments&quot;: 0,
+    &quot;pull_request&quot;: {
+      &quot;url&quot;: &quot;https://api.github.com/repos/octocat/Hello-World/pulls/1347&quot;,
+      &quot;html_url&quot;: &quot;https://github.com/octocat/Hello-World/pull/1347&quot;,
+      &quot;diff_url&quot;: &quot;https://github.com/octocat/Hello-World/pull/1347.diff&quot;,
+      &quot;patch_url&quot;: &quot;https://github.com/octocat/Hello-World/pull/1347.patch&quot;
+    },
+    &quot;closed_at&quot;: null,
+    &quot;created_at&quot;: &quot;2011-04-22T13:33:48Z&quot;,
+    &quot;updated_at&quot;: &quot;2011-04-22T13:33:48Z&quot;
+  }
+]
+</code></pre>
+<h3 id="List-issues-for-a-repository"><a href="#List-issues-for-a-repository" class="headerlink" title="List issues for a repository"></a>List issues for a repository</h3><h4 id="Request-4"><a href="#Request-4" class="headerlink" title="Request"></a>Request</h4><p><code>GET /repos/:owner/:repo/issues</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>milestone</td>
+<td>If an integer is passed, it should refer to a milestone by its number field. If the string * is passed, issues with any milestone are accepted. If the string none is passed, issues without milestones are returned.</td>
+</tr>
+<tr>
+<td>state</td>
+<td>Indicates the state of the issues to return. Can be either open, closed, or all. Default: open</td>
+</tr>
+<tr>
+<td>assignee</td>
+<td>Can be the name of a user. Pass in none for issues with no assigned user, and * for issues assigned to any user.</td>
+</tr>
+<tr>
+<td>creator</td>
+<td>The user that created the issue.</td>
+</tr>
+<tr>
+<td>mentioned</td>
+<td>A user that’s mentioned in the issue.</td>
+</tr>
+<tr>
+<td>labels</td>
+<td>A list of comma separated label names. Example: bug,ui,@high</td>
+</tr>
+<tr>
+<td>sort</td>
+<td>What to sort results by. Can be either created, updated, comments. Default: created</td>
+</tr>
+<tr>
+<td>direction</td>
+<td>The direction of the sort. Can be either asc or desc. Default: desc</td>
+</tr>
+<tr>
+<td>since</td>
+<td>Only issues updated at or after this time are returned. This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.</td>
+</tr>
+</tbody>
+</table>
+
+          
+        
+      </div>
+      <div class="dark-box">
+        
+          <div class="lang-selector">
+            
+                <a href="#" data-language-name="json">json</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </body>
+</html>
